@@ -1,1 +1,617 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madras Fatafat - Live Results & Prediction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { colors: { brand: { yellow: '#FACC15', dark: '#0a0a0a', cardDark: '#141416', accent: '#CA8A04' } } } }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .live-blink { animation: blink 1s infinite; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #141416; }
+        ::-webkit-scrollbar-thumb { background: #FACC15; border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-zinc-50 text-zinc-900 dark:bg-[#0f0f11] dark:text-zinc-100 font-sans min-h-screen transition-colors duration-300">
 
+    <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2"></div>
+
+    <!-- Sticky Navbar -->
+    <nav class="sticky top-0 z-40 bg-zinc-900 text-white border-b border-zinc-800 shadow-md backdrop-blur-md bg-opacity-95">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-brand-yellow text-zinc-950 p-2 rounded-lg font-black text-xl tracking-wider shadow-md">MF</div>
+                <div>
+                    <h1 class="text-xl font-black text-brand-yellow uppercase tracking-tight">Madras Fatafat</h1>
+                    <div class="flex items-center gap-1.5 text-xs text-zinc-400">
+                        <span class="w-2 h-2 bg-red-500 rounded-full live-blink"></span> Live Activity Tracker
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="theme-toggle" class="p-2 text-zinc-400 hover:text-brand-yellow rounded-lg bg-zinc-800"><i class="fa-solid fa-moon dark:hidden text-lg"></i><i class="fa-solid fa-sun hidden dark:block text-lg"></i></button>
+                <button id="refresh-btn" class="p-2 text-zinc-400 hover:text-brand-yellow rounded-lg bg-zinc-800"><i class="fa-solid fa-rotate text-lg"></i></button>
+                <button id="admin-login-btn" class="flex items-center gap-1.5 px-3 py-2 bg-brand-yellow text-zinc-950 font-bold rounded-lg text-sm hover:bg-yellow-500 shadow-md"><i class="fa-solid fa-user-lock"></i><span id="admin-btn-text">Admin Portal</span></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- News Ticker -->
+    <div class="bg-brand-yellow text-zinc-950 font-bold text-sm py-1.5 overflow-hidden whitespace-nowrap shadow-inner">
+        <div id="ticker-text" class="inline-block animate-marquee uppercase tracking-wide pl-[100%]">Connecting to data channels...</div>
+    </div>
+    <style>@keyframes marquee { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } } .animate-marquee { animation: marquee 25s linear infinite; }</style>
+
+    <main class="max-w-6xl mx-auto px-4 py-6 space-y-8">
+        <!-- Hero Module Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-gradient-to-br from-zinc-900 to-zinc-800 text-white p-5 rounded-2xl flex flex-col justify-between border border-zinc-700/50 relative overflow-hidden group shadow-lg md:col-span-1">
+                <div>
+                    <span class="bg-brand-yellow text-zinc-950 text-xs uppercase font-extrabold px-2 py-0.5 rounded">Official App</span>
+                    <p id="ads-banner-text" class="text-zinc-300 text-sm mt-3 font-medium">Loading server app profiles...</p>
+                </div>
+                <a id="app-download-link" href="#" target="_blank" class="mt-4 flex items-center justify-center gap-2 bg-brand-yellow text-zinc-950 font-black py-2.5 px-4 rounded-xl shadow-lg text-sm uppercase tracking-wider"><i class="fa-brands fa-android text-lg"></i> Get Android App</a>
+            </div>
+
+            <div class="bg-white dark:bg-brand-cardDark p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800/60 shadow-sm flex flex-col justify-between md:col-span-2">
+                <div class="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-3">
+                    <div class="flex items-center gap-2"><span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span></span><h2 class="font-bold uppercase tracking-wide text-sm text-zinc-500 dark:text-zinc-400">System Live Status</h2></div>
+                    <div id="game-status-tag" class="px-3 py-1 bg-zinc-500/10 text-zinc-500 font-extrabold text-xs uppercase rounded-full border">Syncing Module...</div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 py-3 my-auto">
+                    <div>
+                        <p class="text-xs text-zinc-400 uppercase font-semibold tracking-wider">Next Target Release Window</p>
+                        <h3 id="countdown-baji-title" class="text-xl font-black mt-0.5 text-zinc-800 dark:text-zinc-100">Synchronizing...</h3>
+                        <p id="countdown-status-msg" class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Calculating clock variance formulas...</p>
+                    </div>
+                    <div class="bg-zinc-100 dark:bg-zinc-900/40 rounded-xl p-3 flex flex-col items-center justify-center border border-zinc-200/40 dark:border-zinc-800/40">
+                        <span class="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1">Global Main Countdown</span>
+                        <div id="countdown-clock" class="text-2xl sm:text-3xl font-black text-brand-yellow font-mono tracking-widest bg-zinc-950 px-4 py-1.5 rounded-lg border border-zinc-800 w-full text-center">00:00:00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Live Grid Section -->
+        <section class="space-y-4">
+            <div>
+                <h2 class="text-xl font-black tracking-tight flex items-center gap-2">Today's Live Results</h2>
+                <p id="today-date-banner" class="text-xs text-zinc-400 font-bold mt-0.5"></p>
+            </div>
+            <div id="baji-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4"></div>
+        </section>
+
+        <!-- Old Results History Section Layout -->
+        <section class="space-y-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-black tracking-tight">Old Results</h2>
+                    <p class="text-xs text-zinc-400 font-bold mt-0.5">Grouped by date, newest first</p>
+                </div>
+                <div class="relative max-w-xs w-full">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-sm"></i>
+                    <input type="text" id="history-search-input" placeholder="Search date dd/mm/yyyy" class="w-full bg-white dark:bg-brand-cardDark border border-zinc-300 dark:border-zinc-800 rounded-xl pl-9 pr-4 py-2 text-sm font-semibold text-zinc-800 dark:text-zinc-100 focus:outline-none focus:border-brand-yellow shadow-inner">
+                </div>
+            </div>
+            <div id="history-root-list" class="space-y-8"></div>
+        </section>
+    </main>
+
+    <!-- Admin Side Panel Workspace Drawer -->
+    <div id="admin-sidebar" class="fixed inset-y-0 right-0 w-full sm:w-[450px] bg-white dark:bg-brand-cardDark z-50 shadow-2xl border-l border-zinc-200 dark:border-zinc-800 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-4 bg-zinc-900 text-white flex items-center justify-between border-b border-zinc-800">
+            <div class="flex items-center gap-2"><i class="fa-solid fa-sliders text-brand-yellow"></i><div><h3 class="font-black text-sm uppercase tracking-wider text-brand-yellow">Control Desk Sidebar</h3><p class="text-[11px] text-zinc-400">Authenticated Operational Management Session</p></div></div>
+            <button id="close-admin-btn" class="p-1 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-5">
+            <div class="bg-zinc-50 dark:bg-zinc-900/50 border rounded-xl p-3.5 space-y-3">
+                <h4 class="text-xs font-black uppercase text-zinc-400 tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-globe text-brand-yellow"></i> Environment Controls</h4>
+                <div>
+                    <label class="block text-[11px] font-bold text-zinc-400 uppercase mb-1">Engine Operational Status</label>
+                    <select id="adm-game-status" class="w-full bg-white dark:bg-zinc-950 border rounded-lg p-2 text-xs font-bold text-zinc-800 dark:text-zinc-100 focus:outline-none"><option value="ON">Status: ON (Active Ticking)</option><option value="OFF">Status: OFF (Suspended Mode)</option></select>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-zinc-400 uppercase mb-1">Live News Ticker String</label>
+                    <textarea id="adm-ticker-text" rows="2" class="w-full bg-white dark:bg-zinc-950 border rounded-lg p-2 text-xs text-zinc-800 dark:text-zinc-100 font-medium focus:outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-zinc-400 uppercase mb-1">App Download Location (URL)</label>
+                    <input type="text" id="adm-download-link" class="w-full bg-white dark:bg-zinc-950 border rounded-lg p-2 text-xs font-semibold text-zinc-800 dark:text-zinc-100 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-zinc-400 uppercase mb-1">App Promotional Banner Copy</label>
+                    <textarea id="adm-ads-text" rows="2" class="w-full bg-white dark:bg-zinc-950 border rounded-lg p-2 text-xs text-zinc-800 dark:text-zinc-100 font-medium focus:outline-none"></textarea>
+                </div>
+                <button id="adm-save-global-btn" class="w-full bg-zinc-900 dark:bg-zinc-800 text-white font-bold text-xs py-2 rounded-lg border border-zinc-700">Apply Global Variables</button>
+            </div>
+
+            <div class="bg-zinc-50 dark:bg-zinc-900/50 border rounded-xl p-3.5 space-y-3">
+                <h4 class="text-xs font-black uppercase text-zinc-400 tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-pen-to-square text-brand-yellow"></i> Result Set Override</h4>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="block text-[11px] font-bold text-zinc-400 uppercase mb-1">Target Date</label><input type="date" id="adm-target-date" class="w-full bg-white dark:bg-zinc-950 border rounded-lg p-2 text-xs font-bold text-zinc-800 dark:text-zinc-100"></div>
+                    <div><label class="block text-[11px] font-bold text-zinc-400 uppercase mb-1">Target Baji Slot</label><select id="adm-target-baji" class="w-full bg-white dark:bg-zinc-950 border rounded-lg p-2 text-xs font-bold text-zinc-800 dark:text-zinc-100"></select></div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 bg-white dark:bg-zinc-950 p-3 rounded-lg border">
+                    <div><label class="block text-[11px] font-bold text-zinc-400 uppercase mb-1 text-zinc-500 text-center">Panna (3 Digits)</label><input type="text" id="adm-num-panna" placeholder="e.g., 125" maxlength="3" class="w-full bg-zinc-50 dark:bg-zinc-900 border rounded-lg p-2 text-sm font-black tracking-widest text-center text-zinc-800 dark:text-zinc-100 focus:outline-none"></div>
+                    <div><label class="block text-[11px] font-bold text-zinc-400 uppercase mb-1 text-zinc-500 text-center">Single (1 Digit)</label><input type="text" id="adm-num-single" placeholder="e.g., 0" maxlength="1" class="w-full bg-zinc-50 dark:bg-zinc-900 border rounded-lg p-2 text-sm font-black tracking-widest text-center text-zinc-800 dark:text-zinc-100 focus:outline-none"></div>
+                </div>
+                <div class="flex gap-2">
+                    <button id="adm-clear-slot-btn" class="flex-1 bg-red-500/10 text-red-500 font-bold text-xs py-2.5 rounded-lg border border-red-500/25">Clear Metrics</button>
+                    <button id="adm-save-slot-btn" class="flex-2 bg-brand-yellow text-zinc-950 font-black text-xs py-2.5 px-4 rounded-lg shadow-md flex items-center justify-center gap-1"><i class="fa-solid fa-floppy-disk"></i> Commit Record</button>
+                </div>
+            </div>
+            <button id="admin-logout-btn" class="w-full py-2 bg-red-600 text-white font-bold text-xs rounded-lg shadow-md flex items-center justify-center gap-1.5"><i class="fa-solid fa-power-off"></i> Terminate Admin Authentication</button>
+        </div>
+    </div>
+
+    <!-- Login/Auth Modal -->
+    <div id="auth-modal" class="fixed inset-0 z-50 bg-zinc-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-brand-cardDark border w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="auth-modal-content">
+            <div class="p-5 bg-zinc-900 text-white flex items-center justify-between border-b border-zinc-800">
+                <div class="flex items-center gap-2"><i class="fa-solid fa-shield-halved text-brand-yellow"></i><h3 class="font-black text-sm uppercase tracking-wide">Security Login Gate</h3></div>
+                <button id="close-auth-modal-btn" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="auth-view-login" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">Administrative Secret Password</label>
+                    <div class="relative"><i class="fa-solid fa-key absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-sm"></i><input type="password" id="auth-password-input" placeholder="••••••••••••" class="w-full bg-zinc-50 dark:bg-zinc-950 border rounded-lg pl-9 pr-3 py-2 text-sm font-bold text-zinc-800 dark:text-zinc-100 focus:outline-none focus:border-brand-yellow"></div>
+                </div>
+                <div class="flex items-center justify-between"><button id="forgot-password-trigger" class="text-xs text-brand-yellow hover:underline font-semibold bg-transparent border-none cursor-pointer">Forgot Recovery Answers?</button></div>
+                <button id="submit-login-btn" class="w-full bg-brand-yellow text-zinc-950 font-black py-2 rounded-lg text-sm tracking-wide shadow-md">Authorize Security Token</button>
+            </div>
+            <div id="auth-view-forgot" class="p-5 space-y-4 hidden">
+                <div class="bg-zinc-50 dark:bg-zinc-900 p-3 rounded-lg border"><p class="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium"><i class="fa-solid fa-circle-info text-brand-yellow mr-1"></i> Answer correctly to restore master values.</p></div>
+                <div>
+                    <label class="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">Security Question Challenge</label>
+                    <p class="text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-2 italic">What is the capital of Tamil Nadu?</p>
+                    <input type="text" id="recovery-answer-input" placeholder="Enter recovery answer string" class="w-full bg-zinc-50 dark:bg-zinc-950 border rounded-lg px-3 py-2 text-sm font-semibold text-zinc-800 dark:text-zinc-100 focus:outline-none focus:border-brand-yellow">
+                </div>
+                <div class="flex gap-2">
+                    <button id="back-to-login-btn" class="flex-1 py-2 bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-300 text-xs font-bold rounded-lg border">Cancel</button>
+                    <button id="submit-recovery-btn" class="flex-1 py-2 bg-brand-yellow text-zinc-950 text-xs font-black rounded-lg">Verify Identity</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BAJI_TIMETABLE = [
+            { id: 1, label: "1st Baji", time: "10:00 AM", time24: "10:00" },
+            { id: 2, label: "2nd Baji", time: "11:00 AM", time24: "11:00" },
+            { id: 3, label: "3rd Baji", time: "12:00 PM", time24: "12:00" },
+            { id: 4, label: "4th Baji", time: "01:00 PM", time24: "13:00" },
+            { id: 5, label: "5th Baji", time: "02:00 PM", time24: "14:00" },
+            { id: 6, label: "6th Baji", time: "03:00 PM", time24: "15:00" },
+            { id: 7, label: "7th Baji", time: "04:00 PM", time24: "16:00" },
+            { id: 8, label: "8th Baji", time: "05:00 PM", time24: "17:00" },
+            { id: 9, label: "9th Baji", time: "06:00 PM", time24: "18:00" },
+            { id: 10, label: "10th Baji", time: "07:00 PM", time24: "19:00" },
+            { id: 11, label: "11th Baji", time: "08:00 PM", time24: "20:00" },
+            { id: 12, label: "12th Baji", time: "09:00 PM", time24: "21:00" }
+        ];
+
+        let appState = {
+            isAdminAuthenticated: false,
+            adminPassword: "",
+            systemTodayDate: "",
+            resultsDatabase: [],
+            environmentConfig: {},
+            searchQuery: ""
+        };
+
+        const DOM = {
+            themeToggle: document.getElementById('theme-toggle'), refreshBtn: document.getElementById('refresh-btn'),
+            adminLoginBtn: document.getElementById('admin-login-btn'), adminBtnText: document.getElementById('admin-btn-text'),
+            toastContainer: document.getElementById('toast-container'), tickerText: document.getElementById('ticker-text'),
+            adsBannerText: document.getElementById('ads-banner-text'), appDownloadLink: document.getElementById('app-download-link'),
+            gameStatusTag: document.getElementById('game-status-tag'), countdownBajiTitle: document.getElementById('countdown-baji-title'),
+            countdownStatusMsg: document.getElementById('countdown-status-msg'), countdownClock: document.getElementById('countdown-clock'),
+            todayDateBanner: document.getElementById('today-date-banner'), bajiGrid: document.getElementById('baji-grid'),
+            historySearchInput: document.getElementById('history-search-input'), historyRootList: document.getElementById('history-root-list'),
+            adminSidebar: document.getElementById('admin-sidebar'), closeAdminBtn: document.getElementById('close-admin-btn'),
+            adminLogoutBtn: document.getElementById('admin-logout-btn'), admGameStatus: document.getElementById('adm-game-status'),
+            admTickerText: document.getElementById('adm-ticker-text'), admDownloadLink: document.getElementById('adm-download-link'),
+            admAdsText: document.getElementById('adm-ads-text'), admSaveGlobalBtn: document.getElementById('adm-save-global-btn'),
+            admTargetDate: document.getElementById('adm-target-date'), admTargetBaji: document.getElementById('adm-target-baji'),
+            admNumPanna: document.getElementById('adm-num-panna'), admNumSingle: document.getElementById('adm-num-single'),
+            admClearSlotBtn: document.getElementById('adm-clear-slot-btn'), admSaveSlotBtn: document.getElementById('adm-save-slot-btn'),
+            authModal: document.getElementById('auth-modal'), authModalContent: document.getElementById('auth-modal-content'),
+            closeAuthModalBtn: document.getElementById('close-auth-modal-btn'), authViewLogin: document.getElementById('auth-view-login'),
+            authViewForgot: document.getElementById('auth-view-forgot'), authPasswordInput: document.getElementById('auth-password-input'),
+            forgotPasswordTrigger: document.getElementById('forgot-password-trigger'), submitLoginBtn: document.getElementById('submit-login-btn'),
+            recoveryAnswerInput: document.getElementById('recovery-answer-input'), backToLoginBtn: document.getElementById('back-to-login-btn'),
+            submitRecoveryBtn: document.getElementById('submit-recovery-btn')
+        };
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `flex items-center gap-2 px-4 py-3 rounded-xl shadow-xl text-xs font-bold text-white bg-zinc-900 border border-zinc-800 transition-all duration-300 transform translate-y-2 opacity-0 scale-95`;
+            const colorMap = { success: 'text-emerald-400 border-emerald-500/20', error: 'text-red-400 border-red-500/20', info: 'text-blue-400 border-blue-500/20' };
+            toast.className += ` ${colorMap[type] || ''}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            DOM.toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0', 'scale-95'), 10);
+            setTimeout(() => { toast.classList.add('opacity-0'); setTimeout(() => toast.remove(), 300); }, 3500);
+        }
+
+        async function syncStateFromCloud() {
+            try {
+                const res = await fetch('/api/state');
+                const cloudData = await res.json();
+                appState.resultsDatabase = cloudData.resultsDatabase;
+                appState.environmentConfig = cloudData.environmentConfig;
+
+                DOM.tickerText.textContent = appState.environmentConfig.tickerText;
+                DOM.adsBannerText.textContent = appState.environmentConfig.adsText;
+                DOM.appDownloadLink.href = appState.environmentConfig.appDownloadLink;
+
+                updateGlobalSystemControlsUI();
+                evaluateApplicationChronologicalState();
+                renderTodayLiveGrid();
+                renderHistoricalFeedRows();
+            } catch (err) { console.error("Cloud syncing error loop active."); }
+        }
+
+        function updateGlobalSystemControlsUI() {
+            const statusOn = appState.environmentConfig.gameStatus === "ON";
+            DOM.gameStatusTag.className = `px-3 py-1 font-extrabold text-xs uppercase rounded-full border ${statusOn ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20':'bg-red-500/10 text-red-500 border-red-500/20'}`;
+            DOM.gameStatusTag.textContent = `Game Status: ${appState.environmentConfig.gameStatus}`;
+            DOM.admGameStatus.value = appState.environmentConfig.gameStatus;
+            DOM.admTickerText.value = appState.environmentConfig.tickerText;
+            DOM.admDownloadLink.value = appState.environmentConfig.appDownloadLink;
+            DOM.admAdsText.value = appState.environmentConfig.adsText;
+        }
+
+        function getClockString(diffMs) {
+            if (diffMs <= 0) return "00:00:00";
+            const hrs = String(Math.floor(diffMs / (1000 * 60 * 60))).padStart(2, '0');
+            const mins = String(Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+            const secs = String(Math.floor((diffMs % (1000 * 60)) / 1000)).padStart(2, '0');
+            return `${hrs}:${mins}:${secs}`;
+        }
+
+        function evaluateApplicationChronologicalState() {
+            if (appState.environmentConfig.gameStatus !== "ON") {
+                DOM.countdownBajiTitle.textContent = "Engine Offline";
+                DOM.countdownStatusMsg.textContent = "The live operational tracking parameters are suspended.";
+                DOM.countdownClock.textContent = "--:--:--";
+                return;
+            }
+
+            const now = new Date();
+            let nextSlot = null;
+
+            for (let slot of BAJI_TIMETABLE) {
+                const slotTarget = new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...slot.time24.split(':').map(Number), 0, 0);
+                if (now < slotTarget) { nextSlot = slot; break; }
+            }
+
+            if (!nextSlot) {
+                const firstSlotTomorrow = BAJI_TIMETABLE[0];
+                DOM.countdownBajiTitle.textContent = `${firstSlotTomorrow.label} (Tomorrow)`;
+                DOM.countdownStatusMsg.textContent = "All baji rounds finalized today. Tracking tomorrow's cycle.";
+                const tomorrowTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, ...firstSlotTomorrow.time24.split(':').map(Number), 0, 0);
+                DOM.countdownClock.textContent = getClockString(tomorrowTime - now);
+            } else {
+                DOM.countdownBajiTitle.textContent = `${nextSlot.label} (${nextSlot.time})`;
+                DOM.countdownStatusMsg.textContent = "Awaiting automated window data unlock parameters.";
+                const targetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...nextSlot.time24.split(':').map(Number), 0, 0);
+                DOM.countdownClock.textContent = getClockString(targetTime - now);
+            }
+        }
+
+        function isBajiSlotLocked(slotTime24, targetDateIso) {
+            if (appState.isAdminAuthenticated) return false;
+            if (targetDateIso !== appState.systemTodayDate) return false;
+            if (appState.environmentConfig.gameStatus !== "ON") return false;
+
+            const now = new Date();
+            const targetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...slotTime24.split(':').map(Number), 0, 0);
+            return now < targetTime;
+        }
+
+        function renderTodayLiveGrid() {
+            DOM.todayDateBanner.textContent = formatDisplayDateString(appState.systemTodayDate);
+            const todayPack = appState.resultsDatabase.find(r => r.date === appState.systemTodayDate);
+            const todayResults = todayPack ? todayPack.results : [];
+
+            DOM.bajiGrid.innerHTML = '';
+
+            BAJI_TIMETABLE.forEach(slot => {
+                const locked = isBajiSlotLocked(slot.time24, appState.systemTodayDate);
+                const match = todayResults.find(m => m.baji === slot.id);
+                const hasValue = match && match.number;
+
+                const cardNode = document.createElement('div');
+
+                if (!locked && hasValue) {
+                    cardNode.className = "relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500 text-zinc-950 p-5 flex flex-col justify-between h-44 shadow-lg shadow-yellow-500/10 border border-yellow-400/30 group cursor-pointer transform hover:-translate-y-0.5 transition-all";
+                    cardNode.innerHTML = `
+                        <div class="flex items-center justify-between w-full">
+                            <span class="font-extrabold text-sm tracking-wide uppercase opacity-80">${slot.time}</span>
+                            <span class="bg-white/30 text-zinc-950 text-[10px] uppercase font-black px-2 py-0.5 rounded-md tracking-wider">RELEASED</span>
+                        </div>
+                        <div class="text-center my-auto">
+                            <div class="text-4xl font-black tracking-widest font-mono">${match.number}</div>
+                            <div class="mt-2 inline-flex items-center gap-1.5 text-xs font-bold bg-zinc-950/10 px-3 py-1 rounded-full">
+                                <span>Single</span>
+                                <span class="bg-white text-zinc-950 w-5 h-5 rounded-full flex items-center justify-center font-black">${match.single || '0'}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    cardNode.className = "relative overflow-hidden rounded-2xl bg-brand-cardDark border border-zinc-800/80 p-5 flex flex-col justify-between h-44 group transition-colors";
+
+                    const now = new Date();
+                    const slotTarget = new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...slot.time24.split(':').map(Number), 0, 0);
+                    const miniClockStr = getClockString(slotTarget - now);
+
+                    cardNode.innerHTML = `
+                        <div class="flex items-center justify-between w-full">
+                            <span class="text-zinc-400 font-extrabold text-sm tracking-wide">${slot.time}</span>
+                            <span class="text-[11px] font-mono font-bold text-zinc-500 bg-zinc-900 border border-zinc-800/50 px-2 py-0.5 rounded-md">${miniClockStr}</span>
+                        </div>
+                        <div class="text-center my-auto py-2">
+                            <div class="text-2xl font-black font-mono text-zinc-600 tracking-widest flex items-center justify-center gap-1">
+                                <span>---</span> <span class="text-zinc-700 text-lg">*</span>
+                            </div>
+                        </div>
+                        <div class="text-center border-t border-zinc-800/60 pt-2 text-xs font-bold text-zinc-400 tracking-wide">
+                            Releases at <span class="text-brand-yellow font-black">${slot.time}</span>
+                        </div>
+                    `;
+                }
+
+                cardNode.addEventListener('dblclick', () => {
+                    if (appState.isAdminAuthenticated) {
+                        DOM.admTargetDate.value = appState.systemTodayDate;
+                        DOM.admTargetBaji.value = slot.id;
+                        DOM.admNumPanna.value = match ? (match.number || "") : "";
+                        DOM.admNumSingle.value = match ? (match.single || "") : "";
+                        openAdminPanelSidebar();
+                    }
+                });
+
+                DOM.bajiGrid.appendChild(cardNode);
+            });
+        }
+
+        function renderHistoricalFeedRows() {
+            DOM.historyRootList.innerHTML = '';
+            const historyData = appState.resultsDatabase.filter(r => r.date !== appState.systemTodayDate);
+
+            if (historyData.length === 0) {
+                DOM.historyRootList.innerHTML = `<div class="p-6 text-center text-zinc-500 border border-dashed border-zinc-800 rounded-2xl text-xs font-bold uppercase tracking-widest">No Historical Log Archives Recorded Inside Cloud Stack</div>`;
+                return;
+            }
+
+            let renderedCount = 0;
+
+            historyData.forEach(dayPack => {
+                const formattedDateStr = formatDisplayDateString(dayPack.date);
+
+                if (appState.searchQuery) {
+                    const cleanQuery = appState.searchQuery.trim().toLowerCase();
+                    if (!formattedDateStr.toLowerCase().includes(cleanQuery) && !dayPack.date.includes(cleanQuery)) {
+                        return;
+                    }
+                }
+
+                renderedCount++;
+                const totalReleasedCount = dayPack.results.filter(s => s.number).length;
+
+                const dayRowContainer = document.createElement('div');
+                dayRowContainer.className = "bg-[#111112] border border-zinc-800/50 rounded-2xl p-5 space-y-4 shadow-sm";
+
+                dayRowContainer.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-zinc-800/60 pb-2">
+                        <h3 class="text-md font-black tracking-wide text-zinc-100">${formattedDateStr}</h3>
+                        <span class="text-xs font-bold text-zinc-500">${totalReleasedCount} released</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3" id="history-cards-${dayPack.date}"></div>
+                `;
+
+                DOM.historyRootList.appendChild(dayRowContainer);
+                const innerGridTarget = document.getElementById(`history-cards-${dayPack.date}`);
+
+                BAJI_TIMETABLE.forEach(slot => {
+                    const match = dayPack.results.find(m => m.baji === slot.id);
+                    const hasVal = match && match.number;
+
+                    const historyMiniCard = document.createElement('div');
+                    historyMiniCard.className = "bg-zinc-900/40 border border-zinc-800/40 rounded-xl p-3 flex flex-col items-center justify-between text-center min-h-[100px] hover:border-zinc-700/50 transition-colors cursor-pointer group";
+
+                    if (hasVal) {
+                        historyMiniCard.innerHTML = `
+                            <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">${slot.time}</span>
+                            <span class="text-lg font-black tracking-widest text-zinc-200 font-mono mt-1">${match.number}</span>
+                            <span class="bg-zinc-800 text-zinc-400 text-[10px] font-bold px-1.5 py-0.5 rounded mt-1">${match.single || '0'}</span>
+                        `;
+                    } else {
+                        historyMiniCard.innerHTML = `
+                            <span class="text-[10px] font-bold text-zinc-600 uppercase tracking-wider">${slot.time}</span>
+                            <span class="text-md font-black text-zinc-700 font-mono mt-1">***</span>
+                            <span class="text-zinc-700 font-black text-xs mt-1">*</span>
+                        `;
+                    }
+
+                    historyMiniCard.addEventListener('dblclick', () => {
+                        if (appState.isAdminAuthenticated) {
+                            DOM.admTargetDate.value = dayPack.date;
+                            DOM.admTargetBaji.value = slot.id;
+                            DOM.admNumPanna.value = match ? (match.number || "") : "";
+                            DOM.admNumSingle.value = match ? (match.single || "") : "";
+                            openAdminPanelSidebar();
+                        }
+                    });
+
+                    innerGridTarget.appendChild(historyMiniCard);
+                });
+            });
+
+            if (renderedCount === 0 && appState.searchQuery) {
+                DOM.historyRootList.innerHTML = `<div class="p-6 text-center text-zinc-500 text-xs font-bold">No historical data matches found for filter: "${appState.searchQuery}"</div>`;
+            }
+        }
+
+        function formatDisplayDateString(isoString) {
+            if (!isoString) return "";
+            const pts = isoString.split('-'); return pts.length === 3 ? `${pts[2]}/${pts[1]}/${pts[0]}` : isoString;
+        }
+
+        function toggleAuthSecurityModal(showState) {
+            if (showState) {
+                DOM.authModal.classList.remove('hidden'); DOM.authModal.classList.add('flex');
+                setTimeout(() => DOM.authModalContent.classList.remove('scale-95', 'opacity-0'), 50);
+                DOM.authPasswordInput.focus();
+            } else {
+                DOM.authModalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => { DOM.authModal.classList.add('hidden'); DOM.authModal.classList.remove('flex'); DOM.authViewLogin.classList.remove('hidden'); DOM.authViewForgot.classList.add('hidden'); DOM.authPasswordInput.value = ''; DOM.recoveryAnswerInput.value = ''; }, 200);
+            }
+        }
+
+        function openAdminPanelSidebar() { if (appState.isAdminAuthenticated) DOM.adminSidebar.classList.remove('translate-x-full'); else toggleAuthSecurityModal(true); }
+        function closeAdminPanelSidebar() { DOM.adminSidebar.classList.add('translate-x-full'); }
+
+        function synchronizeAuthenticationUIPosture() {
+            if (appState.isAdminAuthenticated) {
+                DOM.adminLoginBtn.className = "flex items-center gap-1.5 px-3 py-2 bg-emerald-500 text-white font-bold rounded-lg text-sm hover:bg-emerald-600 transition-all shadow-md";
+                DOM.adminBtnText.textContent = "Control Panel Active";
+            } else {
+                DOM.adminLoginBtn.className = "flex items-center gap-1.5 px-3 py-2 bg-brand-yellow text-zinc-950 font-bold rounded-lg text-sm hover:bg-yellow-500 shadow-md";
+                DOM.adminBtnText.textContent = "Admin Portal"; closeAdminPanelSidebar();
+            }
+            renderTodayLiveGrid();
+            renderHistoricalFeedRows();
+        }
+
+        async function submitSlotToBackend() {
+            const dateKey = DOM.admTargetDate.value;
+            const bajiId = parseInt(DOM.admTargetBaji.value, 10);
+            const pannaValue = DOM.admNumPanna.value.trim();
+            const singleValue = DOM.admNumSingle.value.trim();
+
+            if (pannaValue && pannaValue.length !== 3) { showToast("Panna must be exactly 3 digits.", "error"); return; }
+            if (singleValue && singleValue.length !== 1) { showToast("Single must be exactly 1 digit.", "error"); return; }
+
+            try {
+                const response = await fetch('/api/admin/save-slot', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: appState.adminPassword, dateKey, bajiId, pannaValue, singleValue })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    appState.resultsDatabase = data.resultsDatabase;
+                    showToast("Record successfully written across secure cloud database.", "success");
+                    DOM.admNumPanna.value = ''; DOM.admNumSingle.value = '';
+
+                    // SMART WORKFLOW FIX: Automatically reset target date back to Today
+                    DOM.admTargetDate.value = appState.systemTodayDate;
+
+                    renderTodayLiveGrid(); renderHistoricalFeedRows();
+                } else { showToast("Invalid secret transaction authorization keys.", "error"); }
+            } catch (err) { showToast("Server communication error.", "error"); }
+        }
+
+        async function submitGlobalToBackend() {
+            try {
+                const response = await fetch('/api/admin/save-global', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        password: appState.adminPassword, gameStatus: DOM.admGameStatus.value,
+                        tickerText: DOM.admTickerText.value, appDownloadLink: DOM.admDownloadLink.value, adsText: DOM.admAdsText.value
+                    })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    appState.environmentConfig = data.environmentConfig;
+                    showToast("Global system state parameters synchronized completely.", "success");
+                    updateGlobalSystemControlsUI(); evaluateApplicationChronologicalState(); renderTodayLiveGrid();
+                } else { showToast("Unauthorized action transaction token signature.", "error"); }
+            } catch (err) { showToast("Network layer error tracking.", "error"); }
+        }
+
+        function bindApplicationEventInterfaces() {
+            DOM.themeToggle.addEventListener('click', () => {
+                if (document.documentElement.classList.contains('dark')) { document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light'); }
+                else { document.documentElement.classList.add('dark'); localStorage.setItem('theme', 'dark'); }
+            });
+            DOM.refreshBtn.addEventListener('click', () => { syncStateFromCloud(); showToast("Central system state records hard refreshed.", "success"); });
+
+            // SMART WORKFLOW FIX: Clicking main button always forces target date to Today
+            DOM.adminLoginBtn.addEventListener('click', () => {
+                if (appState.isAdminAuthenticated) {
+                    DOM.admTargetDate.value = appState.systemTodayDate;
+                }
+                openAdminPanelSidebar();
+            });
+
+            DOM.closeAdminBtn.addEventListener('click', closeAdminPanelSidebar);
+            DOM.closeAuthModalBtn.addEventListener('click', () => toggleAuthSecurityModal(false));
+            DOM.forgotPasswordTrigger.addEventListener('click', () => { DOM.authViewLogin.classList.add('hidden'); DOM.authViewForgot.classList.remove('hidden'); });
+            DOM.backToLoginBtn.addEventListener('click', () => { DOM.authViewForgot.classList.add('hidden'); DOM.authViewLogin.classList.remove('hidden'); });
+
+            DOM.submitLoginBtn.addEventListener('click', async () => {
+                const passwordInput = DOM.authPasswordInput.value;
+                try {
+                    const response = await fetch('/api/state');
+                    const testData = await response.json();
+                    if (passwordInput === testData.environmentConfig.adminPasswordHash) {
+                        appState.isAdminAuthenticated = true;
+                        appState.adminPassword = passwordInput;
+                        toggleAuthSecurityModal(false); synchronizeAuthenticationUIPosture(); openAdminPanelSidebar();
+                    } else { showToast("Invalid structural password credential match.", "error"); }
+                } catch(e) { showToast("Authentication check error processing sequence.", "error"); }
+            });
+
+            DOM.submitRecoveryBtn.addEventListener('click', async () => {
+                const answer = DOM.recoveryAnswerInput.value;
+                try {
+                    const res = await fetch('/api/auth/recover', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({answer}) });
+                    if(res.ok) {
+                        showToast(`Credentials rolled back! Master password is reset to: iambadasgood`, "success");
+                        DOM.authViewForgot.classList.add('hidden'); DOM.authViewLogin.classList.remove('hidden');
+                    } else { showToast("Recovery query identification failed verification logic rules.", "error"); }
+                } catch(e) { showToast("Security fallback execution error.", "error"); }
+            });
+
+            DOM.adminLogoutBtn.addEventListener('click', () => { appState.isAdminAuthenticated = false; appState.adminPassword = ""; synchronizeAuthenticationUIPosture(); });
+            DOM.admSaveSlotBtn.addEventListener('click', submitSlotToBackend);
+            DOM.admSaveGlobalBtn.addEventListener('click', submitGlobalToBackend);
+
+            DOM.historySearchInput.addEventListener('input', (e) => {
+                appState.searchQuery = e.target.value;
+                renderHistoricalFeedRows();
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('theme') !== 'light') document.documentElement.classList.add('dark');
+            const today = new Date(); const offset = today.getTimezoneOffset();
+            const localToday = new Date(today.getTime() - (offset * 60 * 1000));
+            appState.systemTodayDate = localToday.toISOString().split('T')[0];
+
+            DOM.admTargetDate.value = appState.systemTodayDate;
+
+            DOM.admTargetBaji.innerHTML = '';
+            BAJI_TIMETABLE.forEach(slot => { const opt = document.createElement('option'); opt.value = slot.id; opt.textContent = `${slot.label} [${slot.time}]`; DOM.admTargetBaji.appendChild(opt); });
+
+            bindApplicationEventInterfaces();
+            syncStateFromCloud();
+
+            setInterval(() => {
+                evaluateApplicationChronologicalState();
+                renderTodayLiveGrid();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
