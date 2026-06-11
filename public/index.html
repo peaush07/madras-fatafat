@@ -24,7 +24,6 @@
 
     <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2"></div>
 
-    <!-- Sticky Navbar -->
     <nav class="sticky top-0 z-40 bg-zinc-900 text-white border-b border-zinc-800 shadow-md backdrop-blur-md bg-opacity-95">
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -44,14 +43,12 @@
         </div>
     </nav>
 
-    <!-- News Ticker -->
     <div class="bg-brand-yellow text-zinc-950 font-bold text-sm py-1.5 overflow-hidden whitespace-nowrap shadow-inner">
         <div id="ticker-text" class="inline-block animate-marquee uppercase tracking-wide pl-[100%]">Connecting to data channels...</div>
     </div>
     <style>@keyframes marquee { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } } .animate-marquee { animation: marquee 25s linear infinite; }</style>
 
     <main class="max-w-6xl mx-auto px-4 py-6 space-y-8">
-        <!-- Hero Module Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="bg-gradient-to-br from-zinc-900 to-zinc-800 text-white p-5 rounded-2xl flex flex-col justify-between border border-zinc-700/50 relative overflow-hidden group shadow-lg md:col-span-1">
                 <div>
@@ -80,7 +77,6 @@
             </div>
         </div>
 
-        <!-- Today's Live Grid Section -->
         <section class="space-y-4">
             <div>
                 <h2 class="text-xl font-black tracking-tight flex items-center gap-2">Today's Live Results</h2>
@@ -89,7 +85,6 @@
             <div id="baji-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4"></div>
         </section>
 
-        <!-- Old Results History Section Layout -->
         <section class="space-y-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
             <div class="flex items-center justify-between">
                 <div>
@@ -105,7 +100,6 @@
         </section>
     </main>
 
-    <!-- Admin Side Panel Workspace Drawer -->
     <div id="admin-sidebar" class="fixed inset-y-0 right-0 w-full sm:w-[450px] bg-white dark:bg-brand-cardDark z-50 shadow-2xl border-l border-zinc-200 dark:border-zinc-800 transform translate-x-full transition-transform duration-300 flex flex-col">
         <div class="p-4 bg-zinc-900 text-white flex items-center justify-between border-b border-zinc-800">
             <div class="flex items-center gap-2"><i class="fa-solid fa-sliders text-brand-yellow"></i><div><h3 class="font-black text-sm uppercase tracking-wider text-brand-yellow">Control Desk Sidebar</h3><p class="text-[11px] text-zinc-400">Authenticated Operational Management Session</p></div></div>
@@ -148,11 +142,30 @@
                     <button id="adm-save-slot-btn" class="flex-2 bg-brand-yellow text-zinc-950 font-black text-xs py-2.5 px-4 rounded-lg shadow-md flex items-center justify-center gap-1"><i class="fa-solid fa-floppy-disk"></i> Commit Record</button>
                 </div>
             </div>
+
+            <div class="bg-zinc-50 dark:bg-zinc-900/50 border rounded-xl p-3.5 space-y-3">
+                <h4 class="text-xs font-black uppercase text-zinc-400 tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-key text-brand-yellow"></i> Authentication Controls</h4>
+                <form id="changePasswordForm" class="space-y-2.5">
+                    <div>
+                        <label class="block text-[11px] font-bold text-zinc-400 uppercase mb-1">1. Old Password</label>
+                        <input type="password" id="oldPassword" required placeholder="Current portal password" class="w-full bg-white dark:bg-zinc-950 border rounded-lg p-2 text-xs font-semibold text-zinc-800 dark:text-zinc-100 focus:outline-none focus:border-brand-yellow">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-zinc-400 uppercase mb-1">2. New Password</label>
+                        <input type="password" id="newPassword" required placeholder="Enter new password" class="w-full bg-white dark:bg-zinc-950 border rounded-lg p-2 text-xs font-semibold text-zinc-800 dark:text-zinc-100 focus:outline-none focus:border-brand-yellow">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-zinc-400 uppercase mb-1">3. Rewrite New Password</label>
+                        <input type="password" id="confirmPassword" required placeholder="Confirm new password" class="w-full bg-white dark:bg-zinc-950 border rounded-lg p-2 text-xs font-semibold text-zinc-800 dark:text-zinc-100 focus:outline-none focus:border-brand-yellow">
+                    </div>
+                    <button type="submit" class="w-full bg-zinc-900 dark:bg-zinc-800 text-white font-bold text-xs py-2 rounded-lg border border-zinc-700 hover:border-brand-yellow transition-colors">Update Portal Password</button>
+                </form>
+            </div>
+
             <button id="admin-logout-btn" class="w-full py-2 bg-red-600 text-white font-bold text-xs rounded-lg shadow-md flex items-center justify-center gap-1.5"><i class="fa-solid fa-power-off"></i> Terminate Admin Authentication</button>
         </div>
     </div>
 
-    <!-- Login/Auth Modal -->
     <div id="auth-modal" class="fixed inset-0 z-50 bg-zinc-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-white dark:bg-brand-cardDark border w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="auth-modal-content">
             <div class="p-5 bg-zinc-900 text-white flex items-center justify-between border-b border-zinc-800">
@@ -581,6 +594,43 @@
                         DOM.authViewForgot.classList.add('hidden'); DOM.authViewLogin.classList.remove('hidden');
                     } else { showToast("Recovery query identification failed verification logic rules.", "error"); }
                 } catch(e) { showToast("Security fallback execution error.", "error"); }
+            });
+
+            // PASSWORD INTERFACE OPERATION LAYER
+            document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const oldPassword = document.getElementById('oldPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                if (newPassword !== confirmPassword) {
+                    showToast("New passwords do not match!", "error");
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/change-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ oldPassword, newPassword, confirmPassword })
+                    });
+                    
+                    const feedback = await response.json();
+                    
+                    if (feedback.success) {
+                        showToast(feedback.message, "success");
+                        
+                        // Critical Synchronization Step: Maintain continuous operational session token mapping
+                        appState.adminPassword = newPassword;
+                        
+                        document.getElementById('changePasswordForm').reset();
+                    } else {
+                        showToast(feedback.message, "error");
+                    }
+                } catch (err) {
+                    showToast("Network endpoint connection failed.", "error");
+                }
             });
 
             DOM.adminLogoutBtn.addEventListener('click', () => { appState.isAdminAuthenticated = false; appState.adminPassword = ""; synchronizeAuthenticationUIPosture(); });
